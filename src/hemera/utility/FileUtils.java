@@ -54,7 +54,6 @@ public enum FileUtils {
 	 * @throws IOException If any file processing failed.
 	 */
 	public File jarFiles(final List<File> files, final String target) throws IOException {
-		if (!target.endsWith(".jar")) throw new IllegalArgumentException("Target must be a Jar file with extension .jar");
 		// Delete and create new file.
 		final File jarfile = new File(target);
 		jarfile.delete();
