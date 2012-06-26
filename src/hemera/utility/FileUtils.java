@@ -149,7 +149,7 @@ public enum FileUtils {
 	 * @throws IOException If any file processing failed.
 	 */
 	public File writeToFile(final JarFile jar, final String entryName, final String path) throws IOException {
-		final String filePath = path.endsWith("/") ? path : path + "/"; 
+		final String filePath = path.endsWith(File.separator) ? path : path + File.separator; 
 		// Create necessary directories.
 		final File dir = new File(filePath);
 		dir.mkdirs();
