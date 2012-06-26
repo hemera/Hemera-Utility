@@ -1,9 +1,13 @@
 package hemera.utility;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -49,6 +53,34 @@ public enum FileUtils {
 	}
 	
 	/**
+	 * Read the contents of the file as a single string
+	 * value.
+	 * @param file The <code>File</code> to read.
+	 * @return The <code>String</code> of the file
+	 * contents.
+	 * @throws IOException If any file processing failed.
+	 */
+	public String readAsString(final File file) throws IOException {
+		BufferedReader input = null;
+		final StringBuilder builder = new StringBuilder();
+		try {
+			input = new BufferedReader(new FileReader(file));
+			final char[] buffer = new char[1024];
+			while (true) {
+				final int count = input.read(buffer);
+				if (count <= 0) break;
+				else {
+					final String str = String.valueOf(buffer, 0, count);
+					builder.append(str);
+				}
+			}
+		} finally {
+			if (input != null) input.close();
+		}
+		return builder.toString();
+	}
+	
+	/**
 	 * Write all the entries of the Jar file to the
 	 * specified directory.
 	 * @param jarFile The <code>File</code> to retrieve
@@ -70,6 +102,33 @@ public enum FileUtils {
 		} finally {
 			if (input != null) input.close();
 		}
+	}
+
+	/**
+	 * Write the given content as a file at the given
+	 * target location. If the given target is an
+	 * existing file, the contents of that file will
+	 * be over-written.
+	 * @param content The <code>String</code> content.
+	 * @param target The <code>String</code> target
+	 * file to write to.
+	 * @return The <code>File</code> written to.
+	 * @throws IOException If any file processing failed.
+	 */
+	public File writeAsString(final String content, final String target) throws IOException {
+		// Delete existing.
+		final File file = new File(target);
+		file.delete();
+		file.createNewFile();
+		// Write contents.
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(content);
+		} finally {
+			if (writer != null) writer.close();
+		}
+		return file;
 	}
 
 	/**
