@@ -5,11 +5,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 /**
  * <code>FileUtils</code> defines the singleton utility
@@ -43,6 +47,78 @@ public enum FileUtils {
 		}
 		return file.delete();
 	}
+	
+	/**
+	 * Write all the entries of the Jar file to the
+	 * specified directory.
+	 * @param jarFile The <code>File</code> to retrieve
+	 * entries from.
+	 * @param path The <code>String</code> directory
+	 * to write the entries to.
+	 * @throws IOException If any file processing failed.
+	 */
+	public void writeAll(final File jarFile, final String path) throws IOException {
+		final JarFile jar = new JarFile(jarFile);
+		JarInputStream input = null;
+		try {
+			input = new JarInputStream(new FileInputStream(jarFile));
+			ZipEntry entry = input.getNextEntry();
+			while (entry != null) {
+				FileUtils.instance.writeToFile(jar, entry.getName(), path);
+				entry = input.getNextEntry();
+			}
+		} finally {
+			if (input != null) input.close();
+		}
+	}
+
+	/**
+	 * Write the Jar entry with specified name from
+	 * the given Jar file to the target location.
+	 * <p>
+	 * This method creates the necessary directories
+	 * for the target file.
+	 * @param jar The <code>JarFile</code> to retrieve
+	 * the entry from.
+	 * @param entryName The <code>String</code> name of
+	 * the entry, which is also the name of the output
+	 * file.
+	 * @param path The <code>String</code> directory
+	 * to write the file to.
+	 * @return The created <code>File</code>. If the
+	 * operation failed, <code>null</code>.
+	 * @throws IOException If any file processing failed.
+	 */
+	public File writeToFile(final JarFile jar, final String entryName, final String path) throws IOException {
+		final String filePath = path.endsWith("/") ? path : path + "/"; 
+		// Create necessary directories.
+		final File dir = new File(filePath);
+		dir.mkdirs();
+		// Retrieve the entry.
+		final ZipEntry entry = jar.getEntry(entryName);
+		// Delete and create target file.
+		final String targetPath = filePath + entryName;
+		final File target = new File(targetPath);
+		target.delete();
+		target.createNewFile();
+		// Write to file.
+		FileOutputStream output = null;
+		InputStream input = null;
+		try {
+			output = new FileOutputStream(target);
+			input = jar.getInputStream(entry);
+			final byte[] buffer = new byte[1024];
+			while (true) {
+				final int count = input.read(buffer);
+				if (count <= 0) break;
+				else output.write(buffer, 0, count);
+			}
+		} finally {
+			if (output != null) output.close();
+			if (input != null) input.close();
+		}
+		return target;
+	}
 
 	/**
 	 * Create a new Jar file using the given files and
@@ -60,7 +136,7 @@ public enum FileUtils {
 	public File jarFiles(final List<File> files, final String target) throws IOException {
 		return this.jarFiles(files, target, new Manifest());
 	}
-	
+
 	/**
 	 * Create a new Jar file using the given files and
 	 * save the Jar file at the target location.
@@ -79,15 +155,18 @@ public enum FileUtils {
 		jarfile.delete();
 		jarfile.createNewFile();
 		// Create a new output stream for the Jar file.
-		final JarOutputStream output = new JarOutputStream(new FileOutputStream(jarfile), manifest);
-		// Add all files as Jar entries.
-		final int size = files.size();
-		for (int i = 0; i < size; i++) {
-			final File file = files.get(i);
-			this.writeJarEntry(file, output);
+		JarOutputStream output = null;
+		try {
+			output = new JarOutputStream(new FileOutputStream(jarfile), manifest);
+			// Add all files as Jar entries.
+			final int size = files.size();
+			for (int i = 0; i < size; i++) {
+				final File file = files.get(i);
+				this.writeJarEntry(file, output);
+			}
+		} finally {
+			if (output != null) output.close();
 		}
-		// Close output.
-		output.close();
 		return jarfile;
 	}
 
