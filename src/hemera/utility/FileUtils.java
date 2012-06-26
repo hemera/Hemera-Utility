@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 /**
  * <code>FileUtils</code> defines the singleton utility
@@ -46,6 +47,9 @@ public enum FileUtils {
 	/**
 	 * Create a new Jar file using the given files and
 	 * save the Jar file at the target location.
+	 * <p>
+	 * This method includes an empty manifest file in
+	 * the final Jar file.
 	 * @param files The <code>List</code> of all the
 	 * <code>File</code> to be jarred.
 	 * @param target The <code>String</code> path to
@@ -54,12 +58,28 @@ public enum FileUtils {
 	 * @throws IOException If any file processing failed.
 	 */
 	public File jarFiles(final List<File> files, final String target) throws IOException {
+		return this.jarFiles(files, target, new Manifest());
+	}
+	
+	/**
+	 * Create a new Jar file using the given files and
+	 * save the Jar file at the target location.
+	 * @param files The <code>List</code> of all the
+	 * <code>File</code> to be jarred.
+	 * @param target The <code>String</code> path to
+	 * store the new Jar file.
+	 * @param manifest The <code>Manifest</code> to be
+	 * included in the Jar file.
+	 * @return The new Jar <code>File</code>.
+	 * @throws IOException If any file processing failed.
+	 */
+	public File jarFiles(final List<File> files, final String target, final Manifest manifest) throws IOException {
 		// Delete and create new file.
 		final File jarfile = new File(target);
 		jarfile.delete();
 		jarfile.createNewFile();
 		// Create a new output stream for the Jar file.
-		final JarOutputStream output = new JarOutputStream(new FileOutputStream(jarfile));
+		final JarOutputStream output = new JarOutputStream(new FileOutputStream(jarfile), manifest);
 		// Add all files as Jar entries.
 		final int size = files.size();
 		for (int i = 0; i < size; i++) {
