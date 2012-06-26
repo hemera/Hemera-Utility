@@ -22,7 +22,27 @@ public enum FileUtils {
 	 * The singleton instance.
 	 */
 	instance;
-	
+
+	/**
+	 * Delete the target. If the target is a directory,
+	 * all the children directories and files are also
+	 * deleted.
+	 * @param target The <code>String</code> target.
+	 * @return <code>true</code> if target is deleted.
+	 * <code>false</code> otherwise.
+	 */
+	public boolean delete(final String target) {
+		final File file = new File(target);
+		if (file.isDirectory()) {
+			final String[] children = file.list();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = this.delete(new File(target, children[i]).getAbsolutePath());
+				if (!success) return false;
+			}
+		}
+		return file.delete();
+	}
+
 	/**
 	 * Create a new Jar file using the given files and
 	 * save the Jar file at the target location.
@@ -51,7 +71,7 @@ public enum FileUtils {
 		output.close();
 		return jarfile;
 	}
-	
+
 	/**
 	 * Write the given source file as a Jar entry into
 	 * the given Jar output stream.
@@ -87,13 +107,27 @@ public enum FileUtils {
 	}
 
 	/**
+	 * Retrieve all files from the specified directory
+	 * including all sub-directories.
+	 * @param rootDir The <code>String</code> directory
+	 * to search from.
+	 * @return The <code>List</code> of all the
+	 * <code>File</code>. <code>null</code> if there
+	 * are none.
+	 */
+	public List<File> getFiles(final String rootDir) {
+		return this.getFiles(rootDir, null);
+	}
+
+	/**
 	 * Retrieve the files from the specified directory
 	 * including all sub-directories that have the file
 	 * extension matching the given one.
 	 * @param rootDir The <code>String</code> directory
 	 * to search from.
 	 * @param extension The <code>String</code> file
-	 * extension to search for.
+	 * extension to search for. <code>null</code> if
+	 * all file types should be retrieved.
 	 * @return The <code>List</code> of all matching
 	 * <code>File</code>. <code>null</code> if there
 	 * are none.
@@ -113,7 +147,8 @@ public enum FileUtils {
 				files.addAll(results);
 			} else {
 				// Check extension.
-				if (file.getAbsolutePath().endsWith(extension)) files.add(file);
+				if (extension == null) files.add(file);
+				else if (file.getAbsolutePath().endsWith(extension)) files.add(file);
 			}
 		}
 		return files;

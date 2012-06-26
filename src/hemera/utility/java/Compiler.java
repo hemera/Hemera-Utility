@@ -54,8 +54,8 @@ public class Compiler {
 		final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
 		final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjects(sourcearray);
 		// Create temporary build directory.
+		FileUtils.instance.delete(buildDir);
 		final File buildDirFile = new File(buildDir);
-		buildDirFile.delete();
 		buildDirFile.mkdirs();
 		// Create task with compiler options.
 		final List<String> options = this.getCompileOptions(libDir, buildDir);
