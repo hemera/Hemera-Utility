@@ -295,6 +295,17 @@ public enum FileUtils {
 		final String jarPath = path.substring(0, jarIndex).replace("/", File.separator);
 		return new File(jarPath);
 	}
+	
+	/**
+	 * Retrieve the current execution Jar file directory.
+	 * @return The <code>String</code> directory path.
+	 */
+	public String getCurrentJarDirectory() {
+		final File jar = this.getCurrentJarFile();
+		final String jarPath = jar.getAbsolutePath();
+		final int index = jarPath.lastIndexOf(File.separator);
+		return jarPath.substring(0, index+1);
+	}
 
 	/**
 	 * Retrieve all files from the specified directory
