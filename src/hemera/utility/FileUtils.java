@@ -88,21 +88,28 @@ public enum FileUtils {
 	 * entries from.
 	 * @param path The <code>String</code> directory
 	 * to write the entries to.
+	 * @return The <code>List</code> of all the entry
+	 * <code>File</code>. <code>null</code> if there
+	 * are none.
 	 * @throws IOException If any file processing failed.
 	 */
-	public void writeAll(final File jarFile, final String path) throws IOException {
+	public List<File> writeAll(final File jarFile, final String path) throws IOException {
+		final List<File> list = new ArrayList<File>();
 		final JarFile jar = new JarFile(jarFile);
 		JarInputStream input = null;
 		try {
 			input = new JarInputStream(new FileInputStream(jarFile));
 			ZipEntry entry = input.getNextEntry();
 			while (entry != null) {
-				FileUtils.instance.writeToFile(jar, entry.getName(), path);
+				final File file = FileUtils.instance.writeToFile(jar, entry.getName(), path);
+				list.add(file);
 				entry = input.getNextEntry();
 			}
 		} finally {
 			if (input != null) input.close();
 		}
+		if (list.isEmpty()) return null;
+		return list;
 	}
 
 	/**
