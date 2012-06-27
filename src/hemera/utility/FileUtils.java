@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -261,6 +262,26 @@ public enum FileUtils {
 		} finally {
 			if (input != null) input.close();
 		}
+	}
+
+	/**
+	 * Retrieve the current executing Jar file path
+	 * on the local file system.
+	 * @return The current Jar <code>File</code>.
+	 */
+	public File getCurrentJarFile() {
+		// Retrieve the resource of this class.
+		final String classResource = this.getClass().getName().replace(".", File.separator) + ".class";
+		final URL classUrl = this.getClass().getClassLoader().getResource(classResource);
+		final String classUrlPath = classUrl.getFile();
+		// Only use the actual path portion excluding any descriptor.
+		final int start = classUrlPath.indexOf(File.separator);
+		final int index = classUrlPath.lastIndexOf(File.separator)+1;
+		final String path = classUrlPath.substring(start, index);
+		// Find the Jar file portion.
+		final int jarIndex = path.indexOf("!");
+		final String jarPath = path.substring(0, jarIndex);
+		return new File(jarPath);
 	}
 
 	/**
