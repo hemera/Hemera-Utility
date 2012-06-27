@@ -164,7 +164,8 @@ public enum FileUtils {
 		// Retrieve the entry.
 		final ZipEntry entry = jar.getEntry(entryName);
 		// Delete and create target file.
-		final int index = entryName.lastIndexOf(File.separator)+1;
+		// Explicitly use slash here since entry path is platform independent.
+		final int index = entryName.lastIndexOf("/")+1;
 		final String targetName = entryName.substring(index);
 		final String targetPath = filePath + targetName;
 		final File target = new File(targetPath);
@@ -280,16 +281,18 @@ public enum FileUtils {
 	 */
 	public File getCurrentJarFile() {
 		// Retrieve the resource of this class.
-		final String classResource = this.getClass().getName().replace(".", File.separator) + ".class";
+		// Explicitly use slash here since resource path is platform independent.
+		final String classResource = this.getClass().getName().replace(".", "/") + ".class";
 		final URL classUrl = this.getClass().getClassLoader().getResource(classResource);
 		final String classUrlPath = classUrl.getFile();
 		// Only use the actual path portion excluding any descriptor.
-		final int start = classUrlPath.indexOf(File.separator);
-		final int index = classUrlPath.lastIndexOf(File.separator)+1;
+		// Explicitly use slash here since resource path is platform independent.
+		final int start = classUrlPath.indexOf("/");
+		final int index = classUrlPath.lastIndexOf("/")+1;
 		final String path = classUrlPath.substring(start, index);
 		// Find the Jar file portion.
 		final int jarIndex = path.indexOf("!");
-		final String jarPath = path.substring(0, jarIndex);
+		final String jarPath = path.substring(0, jarIndex).replace("/", File.separator);
 		return new File(jarPath);
 	}
 
