@@ -157,7 +157,9 @@ public enum FileUtils {
 		// Retrieve the entry.
 		final ZipEntry entry = jar.getEntry(entryName);
 		// Delete and create target file.
-		final String targetPath = filePath + entryName;
+		final int index = entryName.lastIndexOf(File.separator)+1;
+		final String targetName = entryName.substring(index);
+		final String targetPath = filePath + targetName;
 		final File target = new File(targetPath);
 		target.delete();
 		target.createNewFile();
