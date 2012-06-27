@@ -39,7 +39,7 @@ public class Compiler {
 	 * to put all compiled class files.
 	 * @return The <code>List</code> of all the compiled
 	 * class files.
-	 * @throws Exception If any compilation error ocurred.
+	 * @throws Exception If any compilation error occurred.
 	 */
 	public List<File> compile(final String srcDir, final String libDir, final String buildDir) throws Exception {
 		// Retrieve all Java files.
