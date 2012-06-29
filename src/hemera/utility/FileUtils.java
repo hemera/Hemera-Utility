@@ -94,15 +94,51 @@ public enum FileUtils {
 	 * @throws IOException If any file processing failed.
 	 */
 	public List<File> writeAll(final File jarFile, final String path) throws IOException {
+		return this.writeAll(jarFile, path, null);
+	}
+
+	/**
+	 * Write all the entries of the Jar file to the
+	 * specified directory excluding the ones included
+	 * in the given list.
+	 * @param jarFile The <code>File</code> to retrieve
+	 * entries from.
+	 * @param path The <code>String</code> directory
+	 * to write the entries to.
+	 * @param exclusion The <code>List</code> of all
+	 * <code>File</code> to exclude.
+	 * @return The <code>List</code> of all the entry
+	 * <code>File</code>. <code>null</code> if there
+	 * are none.
+	 * @throws IOException If any file processing failed.
+	 */
+	public List<File> writeAll(final File jarFile, final String path, final List<File> exclusion) throws IOException {
+		final int size = (exclusion==null) ? 0 : exclusion.size();
 		final List<File> list = new ArrayList<File>();
 		final JarFile jar = new JarFile(jarFile);
+		// Iterate over all entries.
 		JarInputStream input = null;
 		try {
 			input = new JarInputStream(new FileInputStream(jarFile));
 			ZipEntry entry = input.getNextEntry();
 			while (entry != null) {
-				final File file = FileUtils.instance.writeToFile(jar, entry.getName(), path);
-				list.add(file);
+				// Check exclusion.
+				// Use explicit slash here since this is within the Jar.
+				final String entryName = entry.getName();
+				boolean contains = false;
+				final int index = entryName.lastIndexOf("/")+1;
+				final String entryFilename = entryName.substring(index);
+				for (int i = 0; i < size; i++) {
+					if (exclusion.get(i).getName().equalsIgnoreCase(entryFilename)) {
+						contains = true;
+						break;
+					}
+				}
+				// Only write if doesn't contain.
+				if (!contains) {
+					final File file = FileUtils.instance.writeToFile(jar, entry.getName(), path);
+					list.add(file);
+				}
 				entry = input.getNextEntry();
 			}
 		} finally {
@@ -111,7 +147,7 @@ public enum FileUtils {
 		if (list.isEmpty()) return null;
 		return list;
 	}
-
+	
 	/**
 	 * Write the given content as a file at the given
 	 * target location. If the given target is an
