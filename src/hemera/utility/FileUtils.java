@@ -20,6 +20,17 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+
 /**
  * <code>FileUtils</code> defines the singleton utility
  * that provides various file operation methods.
@@ -52,7 +63,7 @@ public enum FileUtils {
 		}
 		return file.delete();
 	}
-	
+
 	/**
 	 * Read the contents of the file as a single string
 	 * value.
@@ -80,7 +91,7 @@ public enum FileUtils {
 		}
 		return builder.toString();
 	}
-	
+
 	/**
 	 * Write all the entries of the Jar file to the
 	 * specified directory.
@@ -147,7 +158,7 @@ public enum FileUtils {
 		if (list.isEmpty()) return null;
 		return list;
 	}
-	
+
 	/**
 	 * Write the given content as a file at the given
 	 * target location. If the given target is an
@@ -193,7 +204,7 @@ public enum FileUtils {
 	 * @throws IOException If any file processing failed.
 	 */
 	public File writeToFile(final JarFile jar, final String entryName, final String path) throws IOException {
-		final String filePath = path.endsWith(File.separator) ? path : path + File.separator; 
+		final String filePath = this.getValidDir(path); 
 		// Create necessary directories.
 		final File dir = new File(filePath);
 		dir.mkdirs();
@@ -224,6 +235,34 @@ public enum FileUtils {
 			if (input != null) input.close();
 		}
 		return target;
+	}
+
+	/**
+	 * Write the given XML document to the target.
+	 * The old file will be over-written.
+	 * @param document The <code>Document</code> to
+	 * be written.
+	 * @param target The <code>String</code> target
+	 * file to write to.
+	 * @return The <code>File</code> instance.
+	 * @throws IOException If file processing failed.
+	 * @throws TransformerException If writing the
+	 * XML document failed.
+	 */
+	public File writeDocument(final Document document, final String target) throws IOException, TransformerException {
+		// Prepare the DOM document for writing.
+		final Source source = new DOMSource(document);
+		// Prepare the output file.
+		final File file = new File(target);
+		file.delete();
+		file.createNewFile();
+		final Result result = new StreamResult(file);
+		// Write the DOM document to the file.
+		final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+		transformer.transform(source, result);
+		return file;
 	}
 
 	/**
@@ -309,7 +348,7 @@ public enum FileUtils {
 			if (input != null) input.close();
 		}
 	}
-	
+
 	/**
 	 * Retrieve the valid directory path string of the
 	 * given path.
@@ -343,7 +382,7 @@ public enum FileUtils {
 		final String jarPath = path.substring(0, jarIndex).replace("/", File.separator);
 		return new File(jarPath);
 	}
-	
+
 	/**
 	 * Retrieve the current execution Jar file directory.
 	 * @return The <code>String</code> directory path.
