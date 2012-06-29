@@ -309,6 +309,18 @@ public enum FileUtils {
 			if (input != null) input.close();
 		}
 	}
+	
+	/**
+	 * Retrieve the valid directory path string of the
+	 * given path.
+	 * @param path The <code>String</code> path.
+	 * @return The valid <code>String</code> directory
+	 * path with the proper separator.
+	 */
+	public String getValidDir(final String path) {
+		if (path.endsWith(File.separator)) return path;
+		else return path + File.separator;
+	}
 
 	/**
 	 * Retrieve the current executing Jar file path
