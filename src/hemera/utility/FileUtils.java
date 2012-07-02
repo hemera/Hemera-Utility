@@ -20,6 +20,9 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -30,6 +33,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * <code>FileUtils</code> defines the singleton utility
@@ -90,6 +94,22 @@ public enum FileUtils {
 			if (input != null) input.close();
 		}
 		return builder.toString();
+	}
+	
+	/**
+	 * Read the given file and parse it into a XML
+	 * document.
+	 * @param file The <code>File</code> to read.
+	 * @return The <code>Document</code> instance.
+	 * @throws IOException If reading file failed.
+	 * @throws SAXException If parsing file failed.
+	 * @throws ParserConfigurationException If
+	 * parsing file failed.
+	 */
+	public Document readAsDocument(final File file) throws IOException, SAXException, ParserConfigurationException {
+		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		final DocumentBuilder builder = factory.newDocumentBuilder();
+		return builder.parse(file);
 	}
 
 	/**
@@ -408,9 +428,9 @@ public enum FileUtils {
 	}
 
 	/**
-	 * Retrieve the files from the specified directory
-	 * including all sub-directories that have the file
-	 * extension matching the given one.
+	 * Retrieve the files that have the file extension
+	 * matching the given one, from the specified
+	 * directory including all sub-directories 
 	 * @param rootDir The <code>String</code> directory
 	 * to search from.
 	 * @param extension The <code>String</code> file
@@ -421,6 +441,7 @@ public enum FileUtils {
 	 * are none.
 	 */
 	public List<File> getFiles(final String rootDir, final String extension) {
+		final String validExtension = (extension==null||extension.startsWith(".")) ? extension : "."+extension;
 		// Check root directory is a directory.
 		final File root = new File(rootDir);
 		if (!root.isDirectory()) return null;
@@ -431,12 +452,12 @@ public enum FileUtils {
 			final File file = list[i];
 			// Recursive.
 			if (file.isDirectory()) {
-				final List<File> results = this.getFiles(file.getAbsolutePath(), extension);
+				final List<File> results = this.getFiles(file.getAbsolutePath(), validExtension);
 				files.addAll(results);
 			} else {
 				// Check extension.
 				if (extension == null) files.add(file);
-				else if (file.getAbsolutePath().endsWith(extension)) files.add(file);
+				else if (file.getAbsolutePath().endsWith(validExtension)) files.add(file);
 			}
 		}
 		return files;
