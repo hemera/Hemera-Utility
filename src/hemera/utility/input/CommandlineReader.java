@@ -4,7 +4,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import hemera.core.utility.config.TimeData;
+import hemera.core.utility.data.TimeData;
 
 /**
  * <code>CommandlineReader</code> defines the utility
