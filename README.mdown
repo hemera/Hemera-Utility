@@ -1,15 +1,18 @@
-# Hemera Engine - Utility
+# Hemera
+Created by **Yi Wang (Neakor)**
 
-Created by **Yi Wang (hemera)**
+**Please note that this is one of the building blocks of the Hemera
+Application Platform. Please refer to [Hemera-Release](https://github.com/hemera/Hemera-Release)
+for the complete stable releases and [documentation](https://github.com/hemera/Hemera-Release/wiki).**
 
-**Hemera Engine - Utility** TODO
+# Hemera - Utility
 
-# Documentation
-TODO
+**Hemera - Utility** provides a set of generic utility units that can be used
+in various applications for convenience.
 
 # License
 
-**Hemera Engine - Utility** is available under the MIT license:
+**Hemera - Utility** is available under the MIT license:
 
 *Copyright (c) 2012 Yi Wang (hemera)*
 
