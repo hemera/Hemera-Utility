@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * <code>SHA1Utils</code> defines the singleton utility
@@ -21,13 +21,12 @@ public enum SHA1Utils {
 
 	/**
 	 * Encrypt the given string value using SHA-1 one
-	 * way hashing and return the base-64 encoded
-	 * string.
+	 * way hashing and return the hex encoded string.
 	 * @param original The <code>String</code> value
 	 * to be encrypted.
 	 * @param iteration The <code>int</code> number of
 	 * times the SHA1 encryption is performed.
-	 * @return The encrypted and base-64 encoded
+	 * @return The encrypted and hex encoded
 	 * <code>String</code>.
 	 * @throws NoSuchAlgorithmException If the SHA1
 	 * algorithm is not supported.
@@ -40,7 +39,6 @@ public enum SHA1Utils {
 		for (int i = 0; i < iteration; i++) {
 			bytes = digest.digest(bytes);
 		}
-		final byte[] chars = Base64.encodeBase64(bytes);
-		return new String(chars, "UTF-8");
+		return Hex.encodeHexString(bytes);
 	}
 }

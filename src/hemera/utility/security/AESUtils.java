@@ -13,7 +13,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * <code>AESUtils</code> defines the singleton utility
@@ -34,12 +35,12 @@ public enum AESUtils {
 	 * using the AES algorithm.
 	 * @param original The <code>String</code> value
 	 * to be encrypted.
-	 * @param key The base-64 <code>String</code> key
-	 * to encrypt the value with. You may use the
+	 * @param key The hex encoded <code>String</code>
+	 * key to encrypt the value with. You may use the
 	 * <code>generateKey</code> method to create a
-	 * base-64 encoded key.
+	 * hex encoded key.
 	 * @return The encrypted <code>String</code> that
-	 * is base-64 encoded.
+	 * is hex encoded.
 	 * @throws NoSuchAlgorithmException If AES is not
 	 * supported.
 	 * @throws NoSuchPaddingException If transformation
@@ -57,27 +58,27 @@ public enum AESUtils {
 	 * @throws BadPaddingException Should not occur.
 	 * @throws UnsupportedEncodingException If UTF-8
 	 * encoding is not supported.
+	 * @throws DecoderException If decoding hex failed.
 	 */
 	public String encrypt(final String original, final String key) throws NoSuchAlgorithmException, NoSuchPaddingException,
-	InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
-		final byte[] keybytes = Base64.decodeBase64(key.getBytes("UTF-8"));
+	InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, DecoderException {
+		final byte[] keybytes = Hex.decodeHex(key.toCharArray());
 		final SecretKeySpec keySpec = new SecretKeySpec(keybytes, "AES");
 		final Cipher cipher = Cipher.getInstance("AES");
 		cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 		final byte[] encrypted = cipher.doFinal(original.getBytes("UTF-8"));
-		final byte[] chars = Base64.encodeBase64(encrypted);
-		return new String(chars, "UTF-8");
+		return Hex.encodeHexString(encrypted);
 	}
 
 	/**
-	 * Decrypt the given base-64 encoded string value
-	 * with the given key using AES algorithm.
-	 * @param encrypted The base-64 <code>String</code>
+	 * Decrypt the given hex encoded string value with
+	 * the given key using AES algorithm.
+	 * @param encrypted The hex encoded <code>String</code>
 	 * value to be decrypted.
-	 * @param key The base-64 <code>String</code> key
-	 * to decrypt the value with.
+	 * @param key The hex encoded <code>String</code>
+	 * key to decrypt the value with.
 	 * @return The decrypted <code>String</code> value
-	 * base-64 encoded.
+	 * hex encoded.
 	 * @throws NoSuchAlgorithmException If AES is not
 	 * supported.
 	 * @throws NoSuchPaddingException If transformation
@@ -95,14 +96,15 @@ public enum AESUtils {
 	 * @throws BadPaddingException Should not occur.
 	 * @throws UnsupportedEncodingException If UTF-8
 	 * encoding is not supported.
+	 * @throws DecoderException If decoding hex failed.
 	 */
 	public String decrypt(final String encrypted, final String key) throws NoSuchAlgorithmException, NoSuchPaddingException,
-	InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
-		final byte[] keybytes = Base64.decodeBase64(key.getBytes("UTF-8"));
+	InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, DecoderException {
+		final byte[] keybytes = Hex.decodeHex(key.toCharArray());
 		final SecretKeySpec keySpec = new SecretKeySpec(keybytes, "AES");
 		final Cipher cipher = Cipher.getInstance("AES");
 		cipher.init(Cipher.DECRYPT_MODE, keySpec);
-		final byte[] decoded = Base64.decodeBase64(encrypted.getBytes("UTF-8"));
+		final byte[] decoded = Hex.decodeHex(encrypted.toCharArray());
 		final byte[] bytes = cipher.doFinal(decoded);
 		return new String(bytes, "UTF-8");
 	}
@@ -114,8 +116,7 @@ public enum AESUtils {
 	 * @param bitCount The <code>int</code> number of
 	 * bits the key should have. This value must be
 	 * either 128, 192 or 256.
-	 * @return The <code>String</code> base-64 encoded
-	 * key.
+	 * @return The <code>String</code> hex encoded key.
 	 * @throws NoSuchAlgorithmException If AES algorithm
 	 * is not supported.
 	 * @throws UnsupportedEncodingException If UTF-8
@@ -130,7 +131,6 @@ public enum AESUtils {
 		generator.init(bitCount);
 		final SecretKey key = generator.generateKey();
 		final byte[] bytes = key.getEncoded();
-		final byte[] encoded = Base64.encodeBase64(bytes);
-		return new String(encoded, "UTF-8");
+		return Hex.encodeHexString(bytes);
 	}
 }
